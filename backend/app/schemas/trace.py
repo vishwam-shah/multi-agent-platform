@@ -13,6 +13,7 @@ class TraceOut(BaseModel):
     output_data: dict | None = None
     token_usage: dict | None = None
     duration_ms: int | None = None
+    cost_usd: float = 0.0
     timestamp: datetime
 
     model_config = {"from_attributes": True}

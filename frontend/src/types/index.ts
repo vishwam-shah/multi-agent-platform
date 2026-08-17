@@ -8,6 +8,8 @@ export interface Run {
   updated_at: string;
   plan_json: Record<string, unknown> | null;
   error: string | null;
+  cost_usd: number;
+  tokens: number;
 }
 
 export interface Step {
@@ -22,6 +24,8 @@ export interface Step {
   error: string | null;
   started_at: string | null;
   completed_at: string | null;
+  cost_usd: number;
+  tokens: number;
 }
 
 export interface RunDetail extends Run {
@@ -39,5 +43,6 @@ export interface Trace {
   output_data: Record<string, unknown> | null;
   token_usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | null;
   duration_ms: number | null;
+  cost_usd: number;
   timestamp: string;
 }

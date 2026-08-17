@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Trace } from "../types";
+import { formatCost } from "../lib/cost";
 
 const EVENT_COLORS: Record<string, string> = {
   llm_call: "text-blue-400",
@@ -41,6 +42,9 @@ export default function TracePanel({ traces }: { traces: Trace[] }) {
             )}
             {trace.token_usage?.total_tokens && (
               <span className="text-gray-600">{trace.token_usage.total_tokens} tokens</span>
+            )}
+            {trace.cost_usd > 0 && (
+              <span className="font-mono text-emerald-400">{formatCost(trace.cost_usd)}</span>
             )}
             <span className="ml-auto text-xs text-gray-600">
               {new Date(trace.timestamp).toLocaleTimeString()}

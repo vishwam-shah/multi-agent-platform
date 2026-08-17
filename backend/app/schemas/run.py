@@ -19,6 +19,8 @@ class StepOut(BaseModel):
     error: str | None = None
     started_at: datetime | None = None
     completed_at: datetime | None = None
+    cost_usd: float = 0.0
+    tokens: int = 0
 
     model_config = {"from_attributes": True}
 
@@ -33,6 +35,8 @@ class RunOut(BaseModel):
     updated_at: datetime
     plan_json: dict | None = None
     error: str | None = None
+    cost_usd: float = 0.0
+    tokens: int = 0
 
     model_config = {"from_attributes": True}
 

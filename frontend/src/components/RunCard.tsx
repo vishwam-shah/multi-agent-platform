@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Run } from "../types";
 import StatusBadge from "./StatusBadge";
+import { formatCost, formatTokens } from "../lib/cost";
 
 export default function RunCard({ run }: { run: Run }) {
   const time = new Date(run.created_at).toLocaleString();
@@ -20,7 +21,14 @@ export default function RunCard({ run }: { run: Run }) {
             <p className="mt-2 text-xs text-red-400 truncate">{run.error}</p>
           )}
         </div>
-        <StatusBadge status={run.status} />
+        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <StatusBadge status={run.status} />
+          {run.tokens > 0 && (
+            <span className="text-xs font-mono text-emerald-400" title={`${formatTokens(run.tokens)} tokens`}>
+              {formatCost(run.cost_usd)}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

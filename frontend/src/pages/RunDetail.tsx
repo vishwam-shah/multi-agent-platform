@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRun, cancelRun } from "../api/client";
 import StatusBadge from "../components/StatusBadge";
 import StepTimeline from "../components/StepTimeline";
+import { formatCost, formatTokens } from "../lib/cost";
 
 export default function RunDetail() {
   const { id } = useParams<{ id: string }>();
@@ -42,6 +43,12 @@ export default function RunDetail() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            {run.tokens > 0 && (
+              <div className="text-right">
+                <p className="font-mono text-sm font-semibold text-emerald-400">{formatCost(run.cost_usd)}</p>
+                <p className="text-xs text-gray-500">{formatTokens(run.tokens)} tokens</p>
+              </div>
+            )}
             <StatusBadge status={run.status} />
             {isActive && (
               <button

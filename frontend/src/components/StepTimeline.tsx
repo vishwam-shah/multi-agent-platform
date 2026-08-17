@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Step } from "../types";
 import StatusBadge from "./StatusBadge";
+import { formatCost } from "../lib/cost";
 
 export default function StepTimeline({ steps }: { steps: Step[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -29,6 +30,9 @@ export default function StepTimeline({ steps }: { steps: Step[] }) {
               {step.index + 1}
             </span>
             <span className="flex-1 text-sm text-gray-200 truncate">{step.description}</span>
+            {step.tokens > 0 && (
+              <span className="text-xs font-mono text-emerald-400">{formatCost(step.cost_usd)}</span>
+            )}
             <StatusBadge status={step.status} />
             <span className="text-gray-500 text-xs">{expanded.has(step.id) ? "▲" : "▼"}</span>
           </button>
