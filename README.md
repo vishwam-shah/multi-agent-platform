@@ -34,7 +34,7 @@ User Goal
 |-------|------------|
 | Backend | Python, FastAPI, SQLAlchemy (async), SQLite |
 | AI/LLM | LangChain, OpenAI API, Anthropic Claude API |
-| Tools | Tavily web search, sandboxed Python execution |
+| Tools | Tavily web search, Python code execution (subprocess, not sandboxed — see [SECURITY.md](SECURITY.md)) |
 | Frontend | React 18, TypeScript, Vite, Tailwind CSS |
 
 ## Features
