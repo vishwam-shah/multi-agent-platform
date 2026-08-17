@@ -1,7 +1,6 @@
 from langchain_core.callbacks import get_usage_metadata_callback
-from langchain_core.messages import HumanMessage, SystemMessage
-from langchain.agents import AgentExecutor, create_tool_calling_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage
+from langchain.agents import create_agent
 
 from app.agents.providers import get_llm
 from app.tools.registry import get_all_tools
@@ -35,22 +34,20 @@ async def execute_step(
     else:
         memory_str = "No previous results yet."
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", WORKER_SYSTEM_PROMPT.format(memory=memory_str)),
-        ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
-    ])
-
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    executor = AgentExecutor(agent=agent, tools=tools, max_iterations=10, verbose=False)
+    agent = create_agent(
+        llm,
+        tools=tools,
+        system_prompt=WORKER_SYSTEM_PROMPT.format(memory=memory_str),
+    )
 
     timer = tracer.timer()
     with timer, get_usage_metadata_callback() as usage_cb:
-        result = await executor.ainvoke({"input": step_description})
+        result = await agent.ainvoke({"messages": [HumanMessage(content=step_description)]})
 
-    output_text = result.get("output", "")
+    messages = result.get("messages", [])
+    output_text = messages[-1].content if messages else ""
 
-    # AgentExecutor can make multiple LLM calls per step (tool-calling loop);
+    # The agent loop can make multiple LLM calls per step (tool-calling loop);
     # sum usage across every model invoked so cost tracking covers the whole step.
     token_usage = None
     if usage_cb.usage_metadata:

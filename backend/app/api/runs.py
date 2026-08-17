@@ -1,5 +1,6 @@
 import asyncio
 from collections import defaultdict
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -13,6 +14,29 @@ from app.pricing import estimate_cost
 from app.schemas.run import RunCreate, RunDetailOut, RunOut
 
 router = APIRouter(tags=["runs"])
+
+# On serverless, a run's background task can die when its instance is
+# recycled mid-run. If a run looks "active" but hasn't progressed in a
+# while, the frontend's own polling (every ~2s while active) is used to
+# kick off a resume rather than depending on a long-lived process or cron.
+STALL_THRESHOLD = timedelta(seconds=8)
+
+
+def _resume_if_stalled(run: Run) -> None:
+    if run.status not in ("pending", "planning", "running"):
+        return
+    updated_at = run.updated_at
+    if updated_at.tzinfo is None:
+        updated_at = updated_at.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) - updated_at < STALL_THRESHOLD:
+        return
+
+    from app.agents.orchestrator import execute_run
+
+    # Bump updated_at immediately so concurrent/rapid polls within the
+    # threshold window don't each spawn their own resume task.
+    run.updated_at = datetime.now(timezone.utc)
+    asyncio.create_task(execute_run(run.id, run.goal, run.model_provider, run.model_name))
 
 
 async def _attach_costs(db: AsyncSession, runs: list[Run], include_steps: bool = False):
@@ -91,6 +115,11 @@ async def get_run(run_id: str, db: AsyncSession = Depends(get_db)):
     run = result.scalar_one_or_none()
     if not run:
         raise HTTPException(status_code=404, detail="Run not found")
+
+    _resume_if_stalled(run)
+    if db.is_modified(run):
+        await db.commit()
+
     await _attach_costs(db, [run], include_steps=True)
     return run
 

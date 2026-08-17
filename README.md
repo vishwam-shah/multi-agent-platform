@@ -85,6 +85,19 @@ cd backend
 pytest tests/ -v
 ```
 
+## Deployment (Vercel)
+
+This repo includes a `vercel.json` that deploys `frontend` and `backend` as separate services under one project, with `/api/*` routed to the backend.
+
+Before deploying to production:
+
+- **Use a hosted Postgres database, not SQLite.** Serverless functions don't persist a local filesystem across invocations, so the default `sqlite+aiosqlite:///./data/platform.db` will silently lose data. Provision Postgres (e.g. [Neon](https://neon.tech), available on the Vercel Marketplace) and set `DATABASE_URL` as a Vercel environment variable using the `postgresql+asyncpg://` scheme, e.g.:
+  ```
+  DATABASE_URL=postgresql+asyncpg://user:password@host/dbname
+  ```
+- Set `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, and `TAVILY_API_KEY` as Vercel environment variables (never commit real keys).
+- **Run durability**: each run's orchestration executes as a background task on the backend service. If a serverless instance is recycled mid-run, the frontend's own polling (`GET /api/runs/{id}`, every ~2s while a run is active) detects a stalled run and automatically resumes it — already-completed steps are skipped, not redone. This is best-effort, not a durable job queue; for high-reliability production use, consider a dedicated workflow/queue system instead.
+
 ## API Endpoints
 
 | Method | Path | Description |
