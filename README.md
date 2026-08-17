@@ -1,5 +1,8 @@
 # Multi-Agent AI Workflow Platform
 
+[![CI](https://github.com/vishwam-shah/multi-agent-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/vishwam-shah/multi-agent-platform/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A full-stack platform that orchestrates **planner** and **worker** AI agents to decompose high-level goals into executable steps, with tool calling, persistent memory, automatic retries, and per-run tracing.
 
 ## Architecture
@@ -119,3 +122,11 @@ multi-agent-platform/
 │       └── types/           # TypeScript interfaces
 └── README.md
 ```
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, coding guidelines, and how to submit a pull request. Please open an issue first for larger changes so we can discuss the approach.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
