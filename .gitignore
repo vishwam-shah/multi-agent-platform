@@ -16,3 +16,6 @@ frontend/dist/
 *.tsbuildinfo
 
 .claude/
+
+.vercel
+.env*
